@@ -34,9 +34,9 @@ pipeline{
                 script{
                     withCredentials([string(credentialsId: 'nexus_pass', variable: 'nexus_password')]) {
                              sh '''
-                                docker build -t 3.220.243.252:8083/springapp:${DOCKER_TAG} .
-                                docker login -u admin -p $nexus_password 3.220.243.252:8083
-                                docker push 3.220.243.252:8083/springapp:${DOCKER_TAG}
+                                docker build -t 18.188.210.115:8083/springapp:${DOCKER_TAG} .
+                                docker login -u admin -p $nexus_password 18.188.210.115:8083
+                                docker push 18.188.210.115:8083/springapp:${DOCKER_TAG}
 				docker logout
 			    '''
 		    }
@@ -47,11 +47,11 @@ pipeline{
             steps{
                 script{    
 	                     sh '''
-			        cat my_password.txt | docker login --username kishanth1994 --password-stdin
-				docker tag 3.220.243.252:8083/springapp:${DOCKER_TAG} kishanth1994/springapp:${DOCKER_TAG}
-                                docker push kishanth1994/springapp:${DOCKER_TAG}
-				docker rmi 3.220.243.252:8083/springapp:${DOCKER_TAG}
-				docker rmi kishanth1994/springapp:${DOCKER_TAG}
+			        cat my_password.txt | docker login --username devopsmad --password-stdin
+				docker tag 18.188.210.115:8083/springapp:${DOCKER_TAG} devopsmad/springapp:${DOCKER_TAG}
+                                docker push devopsmad/springapp:${DOCKER_TAG}
+				docker rmi 18.188.210.115:8083/springapp:${DOCKER_TAG}
+				docker rmi devopsmad/springapp:${DOCKER_TAG}
 				docker logout
                             '''
 		}  
@@ -62,7 +62,7 @@ pipeline{
                 script{
 
                     dir('kubernetes/') {
-                        withEnv(['DATREE_TOKEN=87nXtFQA2QxJ1DCuziufez']) {
+                        withEnv(['DATREE_TOKEN=r6nfkPdiPy5vrDSkn2UCsg']) {
                               sh 'helm datree test myapp/'
                         }    
                     }
@@ -77,7 +77,7 @@ pipeline{
                              sh '''
                                   helmversion=$( helm show chart myapp | grep version | cut -d: -f 2 | tr -d ' ')
                                   tar -czvf myapp-${helmversion}.tgz myapp/
-                                  curl -u admin:$nexus_password http://3.220.243.252:8081/repository/helm-hosted/ --upload-file myapp-${helmversion}.tgz -v
+                                  curl -u admin:$nexus_password http://18.188.210.115:8081/repository/helm-hosted/ --upload-file myapp-${helmversion}.tgz -v
                             '''
                           }
                     }
@@ -111,7 +111,7 @@ pipeline{
         stage('Deploying application on k8s cluster from ansible-server using playbook') {
             steps {
                script{
-			        sh 'ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@172.31.85.166 "kubectl config get-contexts; kubectl config use-context kubernetes-admin@kubernetes; whoami && hostname; ansible-playbook -i /etc/ansible/kubernetes/hosts /etc/ansible/kubernetes/playbook-deployment-service.yaml; sudo rm -rf /etc/ansible/kubernetes/*.yaml;"'   
+			        sh 'ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@3.142.196.107 "kubectl config get-contexts; kubectl config use-context kubernetes-admin@kubernetes; whoami && hostname; ansible-playbook -i /etc/ansible/kubernetes/hosts /etc/ansible/kubernetes/playbook-deployment-service.yaml; sudo rm -rf /etc/ansible/kubernetes/*.yaml;"'   
                }
             }
         }
